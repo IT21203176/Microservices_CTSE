@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  gateway:
+    build: ./gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - user-service
+      - order-service
+      - product-service
+    environment:
+      - NODE_ENV=production
+    networks:
+      - microservice-network
+
+  user-service:
+    build: ./user-service
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - SECRET_KEY=${SECRET_KEY}
+      - MONGODB_URI=mongodb://mongodb:27017/user_service
+    depends_on:
+      - mongodb
+    networks:
+      - microservice-network
+
+  order-service:
+    build: ./order-service
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+      - JWT_SECRET=${SECRET_KEY}
+      - MONGODB_URI=mongodb://mongodb:27017/order_service
+      - PORT=3002
+    depends_on:
+      - mongodb
+    networks:
+      - microservice-network
+
+  product-service:
+    build: ./product-service
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+      - SECRET_KEY=${SECRET_KEY}
+      - MONGODB_URI=mongodb://mongodb:27017/product_service
+    depends_on:
+      - mongodb
+    networks:
+      - microservice-network
+
+  mongodb:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+    networks:
+      - microservice-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  microservice-network:
+    driver: bridge
