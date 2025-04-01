@@ -1,8 +1,5 @@
 # Use official Node.js image
-FROM node:18
-
-# Install Python and build essentials
-RUN apt-get update && apt-get install -y python3 make g++
+FROM node:18-alpine
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -11,10 +8,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
-
-# Remove build tools to reduce image size (optional)
-RUN apt-get remove -y python3 make g++ && apt-get autoremove -y
+RUN npm install --production
 
 # Copy source code
 COPY . .
